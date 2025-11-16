@@ -1,5 +1,5 @@
 """
-Représente toutes les actions de base et les affichages des menu.
+Représente toutes les actions et les affichages de base des menu aussi appelés fenètre.
 """
 import pyxel as px
 from typing import Literal
