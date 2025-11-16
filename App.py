@@ -1,6 +1,7 @@
 import pyxel as px
 from Ressources.py import (
     menus,
+    boutons,
 
 )
 
@@ -29,6 +30,11 @@ class Jeu:
         menus.Fenetre("test1", 16, 0, 2, 2, "simple inversé")
         menus.Fenetre("test2", 0, 16, 2, 2, "complet")
         menus.Fenetre("test3", 16, 16, 2, 2, "complet inversé")
+        boutons.Bouton("test", 32, 0, 2, 2, "simple", test)
+        boutons.Bouton("test1", 32, 16, 2, 2, "complet", test2, "test2")
+        boutons.Bouton("test2", 48, 0, 2, 2, "complet", test3, "mot", 2)
+
+        px.mouse(True)
 
         # lance la fenetre de jeu
         px.run(self.update, self.draw)
@@ -38,6 +44,7 @@ class Jeu:
         La fonction qui est répétée chaque frame du jeu pour mettre à jour les variables
         et gérer les différentes actions dans le jeu.
         """
+        boutons.update_boutons("test", "test1", "test2")
         if px.btn(px.KEY_A):
             px.quit()
 
@@ -48,5 +55,19 @@ class Jeu:
         """
         px.cls(12)
         menus.draw_menus("test", "test1", "test2", "test3")
+        boutons.draw_boutons("test", "test1", "test2")
+
+def test():
+    print("test")
+    print()
+
+def test2(mot:str):
+    print(mot)
+    print()
+
+def test3(mot, repetitions):
+    for _ in range(repetitions):
+        print(mot)
+    print()
 
 Jeu(100, 100, "test")
