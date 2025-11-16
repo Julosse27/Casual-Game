@@ -2,7 +2,7 @@ import pyxel as px
 from Ressources.py import (
     menus,
     boutons,
-
+    file_load
 )
 
 class Jeu:
@@ -25,6 +25,8 @@ class Jeu:
         
         # initialise la fenetre de jeu
         px.init(width, height, title= titre, fps= fps)
+
+        px.load(file_load._ELEMENTS_B)
 
         menus.Fenetre("test", 0, 0, 2, 2, "simple")
         menus.Fenetre("test1", 16, 0, 2, 2, "simple inversé")

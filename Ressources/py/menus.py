@@ -75,7 +75,6 @@ class Fenetre:
         '''
         La fonction qui dessine le menu.
         '''
-        px.load(FICHIER_RESSOURCES)
 
         for x in range(self.width):
             for y in range(self.height):

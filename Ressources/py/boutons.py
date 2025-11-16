@@ -3,6 +3,7 @@ Représente tout les boutons pour des interactions de base.
 """
 import pyxel as px
 from typing import Literal, Callable, Any
+from Ressources.py.file_load import load
 
 FICHIER_RESSOURCES = "Ressources/pyxres/elements_b.pyxres"
 
@@ -69,7 +70,7 @@ class Bouton:
         """
         La fonction qui dessine le bouton.
         """
-        px.load(FICHIER_RESSOURCES)
+        load(__name__)
 
         if not (self.animation and px.frame_count % 30 < 15):
             anim = self.type_animation
