@@ -3,7 +3,7 @@ Représente tout les boutons pour des interactions de base.
 """
 import pyxel as px
 from typing import Literal, Callable, Any
-from Ressources.py.file_load import load
+from Ressources.py.file_load import load_draw
 
 FICHIER_RESSOURCES = "Ressources/pyxres/elements_b.pyxres"
 
@@ -34,7 +34,7 @@ class Bouton:
     animation: optionel[`Literal`[`"simple"`, `"inversé"`]]
         Le type d'animation lorsque la souris passe sur le bouton.
     """
-    def __init__(self, nom: str, x: int, y: int, width: int, height: int, modele: Literal["simple", "complet"], action: Callable[[], None] | Callable[[Any], None] | Callable[[Any, Any], None] | Callable[[Any, Any, Any], None], *parametres_action, animation: Literal["inversé", "simple"] = "simple") -> None:
+    def __init__(self, nom: str, x: int, y: int, width: int, height: int, modele: Literal["simple", "complet"], action: Callable, *parametres_action, animation: Literal["inversé", "simple"] = "simple") -> None:
         for noms in boutons:
             assert nom != noms, f"Le bouton {nom} existe déjà."        
         assert width >= 2 and height >= 2, f"La taille du bouton {nom} est trop petite."
@@ -70,12 +70,11 @@ class Bouton:
         """
         La fonction qui dessine le bouton.
         """
-        load(__name__)
 
         if not (self.animation and px.frame_count % 30 < 15):
             anim = self.type_animation
         else:
-            anim = self._TYPES_ANIMS[self._TYPES_ANIMS.index(self.type_animation) + 1]
+            anim = self._TYPES_ANIMS[self._TYPES_ANIMS.index(self.type_animation) - 1]
         
         for x in range(self.width):
             for y in range(self.height):
@@ -113,7 +112,7 @@ class Bouton:
         La fonction qui met à jour les action et les variables du bouton.
         """
         # vérifie si la souris est sur le même axe x et y que le bouton.
-        if (px.mouse_x >= self.x and px.mouse_x <= self.x + self.width * 8) and (px.mouse_y >= self.y and px.mouse_y <= self.y + self.height * 8):
+        if (px.mouse_x >= self.x and px.mouse_x < self.x + self.width * 8) and (px.mouse_y >= self.y and px.mouse_y < self.y + self.height * 8):
             self.animation = True
             if px.btnp(px.MOUSE_BUTTON_LEFT):
                 self.action(*self.parametres)
@@ -127,9 +126,9 @@ def draw_boutons(*noms):
         print("Vous n'avez pas indiqué quel(s) bouton(s) vous voulez afficher.")
     else:
         for nom in noms:
-            try:
-                boutons[nom].draw()
-            except:
+            if boutons[nom] != None:
+                load_draw(__name__, boutons[nom].draw)
+            else:
                 print(f"Le bouton {nom} n'existe pas.")
 
 def update_boutons(*noms):

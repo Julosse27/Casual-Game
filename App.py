@@ -26,15 +26,13 @@ class Jeu:
         # initialise la fenetre de jeu
         px.init(width, height, title= titre, fps= fps)
 
-        px.load(file_load._ELEMENTS_B)
-
         menus.Fenetre("test", 0, 0, 2, 2, "simple")
         menus.Fenetre("test1", 16, 0, 2, 2, "simple inversé")
         menus.Fenetre("test2", 0, 16, 2, 2, "complet")
         menus.Fenetre("test3", 16, 16, 2, 2, "complet inversé")
         boutons.Bouton("test", 32, 0, 2, 2, "simple", test)
         boutons.Bouton("test1", 32, 16, 2, 2, "complet", test2, "test2")
-        boutons.Bouton("test2", 48, 0, 2, 2, "complet", test3, "mot", 2)
+        boutons.Bouton("test2", 48, 0, 2, 2, "complet", test3, "mot", 2, animation= "inversé")
 
         px.mouse(True)
 
@@ -58,6 +56,8 @@ class Jeu:
         px.cls(12)
         menus.draw_menus("test", "test1", "test2", "test3")
         boutons.draw_boutons("test", "test1", "test2")
+
+        file_load.draw()
 
 def test():
     print("test")

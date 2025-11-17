@@ -3,6 +3,7 @@ Représente toutes les actions et les affichages de base des menu aussi appelés
 """
 import pyxel as px
 from typing import Literal
+from Ressources.py.file_load import load_draw
 
 FICHIER_RESSOURCES = "Ressources/pyxres/elements_b.pyxres"
 
@@ -117,7 +118,7 @@ def draw_menus(*noms: str):
         print("Vous n'avez pas indiqué quel(s) menu(s) vous voulez afficher.")
     else:
         for nom in noms:
-            try:
-                menus[nom].draw()
-            except:
-                print(f"Le menu {nom} n'existe pas.")
+            if menus[nom] != None:
+                load_draw(__name__, menus[nom].draw)
+            else:
+                print(f"Le bouton {nom} n'existe pas.")
