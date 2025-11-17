@@ -1,9 +1,5 @@
 import pyxel as px
-from Ressources.py import (
-    menus,
-    boutons,
-    file_load
-)
+import Ressources.py.passerelle as passerelle
 
 class Jeu:
     """
@@ -26,13 +22,13 @@ class Jeu:
         # initialise la fenetre de jeu
         px.init(width, height, title= titre, fps= fps)
 
-        menus.Fenetre("test", 0, 0, 2, 2, "simple")
-        menus.Fenetre("test1", 16, 0, 2, 2, "simple inversé")
-        menus.Fenetre("test2", 0, 16, 2, 2, "complet")
-        menus.Fenetre("test3", 16, 16, 2, 2, "complet inversé")
-        boutons.Bouton("test", 32, 0, 2, 2, "simple", test)
-        boutons.Bouton("test1", 32, 16, 2, 2, "complet", test2, "test2")
-        boutons.Bouton("test2", 48, 0, 2, 2, "complet", test3, "mot", 2, animation= "inversé")
+        passerelle.Fenetre("test", 0, 0, 2, 2, "simple")
+        passerelle.Fenetre("test1", 16, 0, 2, 2, "simple inversé")
+        passerelle.Fenetre("test2", 0, 16, 2, 2, "complet")
+        passerelle.Fenetre("test3", 16, 16, 2, 2, "complet inversé")
+        passerelle.Bouton("test", 32, 0, 2, 2, "simple", test)
+        passerelle.Bouton("test1", 32, 16, 2, 2, "complet", test2, "test2")
+        passerelle.Bouton("test2", 48, 0, 2, 2, "complet", test3, "mot", 2, animation= "inversé")
 
         px.mouse(True)
 
@@ -44,7 +40,7 @@ class Jeu:
         La fonction qui est répétée chaque frame du jeu pour mettre à jour les variables
         et gérer les différentes actions dans le jeu.
         """
-        boutons.update_boutons("test", "test1", "test2")
+        passerelle.update("boutons", "test", "test1", "test2")
         if px.btn(px.KEY_A):
             px.quit()
 
@@ -54,10 +50,14 @@ class Jeu:
         à afficher dans le jeu.
         """
         px.cls(12)
-        menus.draw_menus("test", "test1", "test2", "test3")
-        boutons.draw_boutons("test", "test1", "test2")
 
-        file_load.draw()
+        passerelle.load_draw("menus", "test", "test1", "test2", "test3")
+        passerelle.load_draw("boutons", "test", "test1", "test2")
+
+        passerelle.draw()
+        print()
+        print("-" * 50)
+        print()
 
 def test():
     print("test")

@@ -2,8 +2,7 @@
 Représente tout les boutons pour des interactions de base.
 """
 import pyxel as px
-from typing import Literal, Callable, Any
-from Ressources.py.file_load import load_draw
+from typing import Literal, Callable
 
 FICHIER_RESSOURCES = "Ressources/pyxres/elements_b.pyxres"
 
@@ -62,6 +61,7 @@ class Bouton:
         self.change_modele(modele)
         self.animation = False
         boutons[nom] = self
+        print(boutons)
 
     def change_modele(self, nouveau_modele: Literal["simple", "complet"]):
         self.modele_actif = nouveau_modele
@@ -120,24 +120,4 @@ class Bouton:
             self.animation = False
         
 boutons = dict[str, Bouton]()
-
-def draw_boutons(*noms):
-    if len(noms) == 0:
-        print("Vous n'avez pas indiqué quel(s) bouton(s) vous voulez afficher.")
-    else:
-        for nom in noms:
-            if boutons[nom] != None:
-                load_draw(__name__, boutons[nom].draw)
-            else:
-                print(f"Le bouton {nom} n'existe pas.")
-
-def update_boutons(*noms):
-    if len(noms) == 0:
-        print("Vous n'avez pas indiqué quel(s) bouton(s) dont vous voulez verifier les actions.")
-    else:
-        for nom in noms:
-            try:
-                boutons[nom].update()
-            except:
-                print(f"Le bouton {nom} n'existe pas.")
             

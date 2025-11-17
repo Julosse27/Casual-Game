@@ -3,7 +3,6 @@ Représente toutes les actions et les affichages de base des menu aussi appelés
 """
 import pyxel as px
 from typing import Literal
-from Ressources.py.file_load import load_draw
 
 FICHIER_RESSOURCES = "Ressources/pyxres/elements_b.pyxres"
 
@@ -109,16 +108,3 @@ class Fenetre:
         px.pal()
 
 menus = dict[str, Fenetre]()
-
-def draw_menus(*noms: str):
-    """
-    Fonction qui dessine les menus dont on donne le nom.
-    """
-    if len(noms) == 0:
-        print("Vous n'avez pas indiqué quel(s) menu(s) vous voulez afficher.")
-    else:
-        for nom in noms:
-            if menus[nom] != None:
-                load_draw(__name__, menus[nom].draw)
-            else:
-                print(f"Le bouton {nom} n'existe pas.")
