@@ -61,7 +61,6 @@ class Bouton:
         self.change_modele(modele)
         self.animation = False
         boutons[nom] = self
-        print(boutons)
 
     def change_modele(self, nouveau_modele: Literal["simple", "complet"]):
         self.modele_actif = nouveau_modele
@@ -119,5 +118,5 @@ class Bouton:
         else:
             self.animation = False
         
-boutons = dict[str, Bouton]()
+boutons = dict[str, Bouton](nom = "boutons") # type: ignore
             

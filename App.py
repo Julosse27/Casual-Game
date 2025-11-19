@@ -1,4 +1,5 @@
 import pyxel as px
+from Ressources.py.draw_manager import *
 import Ressources.py.passerelle as passerelle
 
 class Jeu:
@@ -22,18 +23,18 @@ class Jeu:
         # initialise la fenetre de jeu
         px.init(width, height, title= titre, fps= fps)
 
-        passerelle.Fenetre("test", 0, 0, 2, 2, "simple")
-        passerelle.Fenetre("test1", 16, 0, 2, 2, "simple inversé")
-        passerelle.Fenetre("test2", 0, 16, 2, 2, "complet")
-        passerelle.Fenetre("test3", 16, 16, 2, 2, "complet inversé")
-        passerelle.Bouton("test", 32, 0, 2, 2, "simple", test)
-        passerelle.Bouton("test1", 32, 16, 2, 2, "complet", test2, "test2")
-        passerelle.Bouton("test2", 48, 0, 2, 2, "complet", test3, "mot", 2, animation= "inversé")
+        Fenetre("test", 0, 0, 2, 2, "simple")
+        Fenetre("test1", 16, 0, 2, 2, "simple inversé")
+        Fenetre("test2", 0, 16, 2, 2, "complet")
+        Fenetre("test3", 16, 16, 2, 2, "complet inversé")
+        Bouton("test", 32, 0, 2, 2, "simple", test)
+        Bouton("test1", 32, 16, 2, 2, "complet", test2, "test2")
+        Bouton("test2", 48, 0, 2, 2, "complet", test3, "mot", 2, animation= "inversé")
 
         px.mouse(True)
 
         # lance la fenetre de jeu
-        px.run(self.update, self.draw)
+        px.run(self.update, draw)
 
     def update(self):
         """
@@ -44,20 +45,8 @@ class Jeu:
         if px.btn(px.KEY_A):
             px.quit()
 
-    def draw(self):
-        """
-        La fonction qui est répétée chaque frame du jeu pour afficher tout ce qu'il y a
-        à afficher dans le jeu.
-        """
-        px.cls(12)
-
-        passerelle.load_draw("menus", "test", "test1", "test2", "test3")
-        passerelle.load_draw("boutons", "test", "test1", "test2")
-
-        passerelle.draw()
-        print()
-        print("-" * 50)
-        print()
+        if px.frame_count == 0:
+            stop_draw("boutons", "test")
 
 def test():
     print("test")

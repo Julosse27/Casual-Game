@@ -107,4 +107,4 @@ class Fenetre:
 
         px.pal()
 
-menus = dict[str, Fenetre]()
+menus = dict[str, Fenetre](nom = "menus") # type: ignore
