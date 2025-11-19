@@ -4,8 +4,6 @@ Représente toutes les actions et les affichages de base des menu aussi appelés
 import pyxel as px
 from typing import Literal
 
-FICHIER_RESSOURCES = "Ressources/pyxres/elements_b.pyxres"
-
 class Fenetre:
     r"""
     Cette classe represente une fenetre dans son integralitée.
@@ -107,4 +105,4 @@ class Fenetre:
 
         px.pal()
 
-menus = dict[str, Fenetre](nom = "menus") # type: ignore
+menus = dict[str, Fenetre](nom = "menus", ressource = "Ressources/pyxres/elements_b.pyxres") # type: ignore

@@ -44,9 +44,9 @@ class Jeu:
         passerelle.update("boutons", "test", "test1", "test2")
         if px.btn(px.KEY_A):
             px.quit()
-
         if px.frame_count == 0:
-            stop_draw("boutons", "test")
+            ajout_draw("boutons", "test", "test1", "test2")
+            ajout_draw("menus", "test", "test1", "test2", "test3")
 
 def test():
     print("test")

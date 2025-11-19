@@ -4,8 +4,6 @@ Représente tout les boutons pour des interactions de base.
 import pyxel as px
 from typing import Literal, Callable
 
-FICHIER_RESSOURCES = "Ressources/pyxres/elements_b.pyxres"
-
 class Bouton:
     r"""
     Représente un bouton dans son integralitée de son animation à son action.
@@ -118,5 +116,5 @@ class Bouton:
         else:
             self.animation = False
         
-boutons = dict[str, Bouton](nom = "boutons") # type: ignore
+boutons = dict[str, Bouton](nom = "boutons", ressource = "Ressources/pyxres/elements_b.pyxres") # type: ignore
             
