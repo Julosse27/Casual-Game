@@ -43,8 +43,7 @@ class Jeu:
         if px.btn(px.KEY_A):
             px.quit()
         if px.frame_count == 0:
-            ajout_draw("boutons", "test", "test1", "test2")
-            ajout_draw("menus", "test", "test1", "test2", "test3")
+            def_elements(boutons = ["test", "test1", "test2"], menus = ["test", "test1", "test2", "test3"])
         elements_update()
 
 def test():
