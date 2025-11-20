@@ -60,13 +60,15 @@ class Fenetre:
             else:
                 self.emplacement.append(_EMPLACEMENTS["y"][ligne_txt]) # type:ignore
             self.texte = texte
-            
+
+        self.type = "menu"
         self.x = x
         self.y = y
         self.nom = nom
         self.width = width
         self.height = height
         self.modele = _MODELES[modele].copy()
+        self.animation = False
         menus[nom] = self
 
     def draw(self):

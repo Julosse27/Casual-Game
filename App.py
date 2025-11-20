@@ -1,6 +1,5 @@
 import pyxel as px
-from Ressources.py.draw_manager import *
-import Ressources.py.passerelle as passerelle
+from Ressources.py.manager import *
 
 class Jeu:
     """
@@ -41,12 +40,12 @@ class Jeu:
         La fonction qui est répétée chaque frame du jeu pour mettre à jour les variables
         et gérer les différentes actions dans le jeu.
         """
-        passerelle.update("boutons", "test", "test1", "test2")
         if px.btn(px.KEY_A):
             px.quit()
         if px.frame_count == 0:
             ajout_draw("boutons", "test", "test1", "test2")
             ajout_draw("menus", "test", "test1", "test2", "test3")
+        elements_update()
 
 def test():
     print("test")

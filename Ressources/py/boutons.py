@@ -46,6 +46,7 @@ class Bouton:
         self.action = action
         self.parametres = parametres_action
 
+        self.type = "bouton"
         self.nom = nom
 
         self.x = x
@@ -68,10 +69,10 @@ class Bouton:
         La fonction qui dessine le bouton.
         """
 
-        if not (self.animation and px.frame_count % 30 < 15):
-            anim = self.type_animation
-        else:
+        if self.animation and px.frame_count % 30 == 0:
             anim = self._TYPES_ANIMS[self._TYPES_ANIMS.index(self.type_animation) - 1]
+        else:
+            anim = self.type_animation
         
         for x in range(self.width):
             for y in range(self.height):
@@ -110,7 +111,9 @@ class Bouton:
         """
         # vérifie si la souris est sur le même axe x et y que le bouton.
         if (px.mouse_x >= self.x and px.mouse_x < self.x + self.width * 8) and (px.mouse_y >= self.y and px.mouse_y < self.y + self.height * 8):
-            self.animation = True
+            if px.frame_count % 15 == 0:
+                self.animation = True
+                print("chek")
             if px.btnp(px.MOUSE_BUTTON_LEFT):
                 self.action(*self.parametres)
         else:
