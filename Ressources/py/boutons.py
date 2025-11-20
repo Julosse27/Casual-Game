@@ -59,6 +59,7 @@ class Bouton:
         self.type_animation = 0 if animation == "simple" else 1
         self.change_modele(modele)
         self.animation = False
+        self.focus_timer = -1
         boutons[nom] = self
 
     def change_modele(self, nouveau_modele: Literal["simple", "complet"]):
@@ -68,8 +69,8 @@ class Bouton:
         """
         La fonction qui dessine le bouton.
         """
-
-        if self.animation and px.frame_count % 30 == 0:
+        
+        if self.animation and self.focus_timer % 30 == 0:
             anim = self._TYPES_ANIMS[self._TYPES_ANIMS.index(self.type_animation) - 1]
         else:
             anim = self.type_animation
@@ -110,14 +111,16 @@ class Bouton:
         La fonction qui met à jour les action et les variables du bouton.
         """
         # vérifie si la souris est sur le même axe x et y que le bouton.
+        self.animation = False
         if (px.mouse_x >= self.x and px.mouse_x < self.x + self.width * 8) and (px.mouse_y >= self.y and px.mouse_y < self.y + self.height * 8):
-            if px.frame_count % 15 == 0:
+            self.focus_timer += 1
+            if self.focus_timer % 15 == 0:
                 self.animation = True
-                print("chek")
             if px.btnp(px.MOUSE_BUTTON_LEFT):
                 self.action(*self.parametres)
         else:
-            self.animation = False
+            if self.focus_timer != -1:
+                self.animation = True
+                self.focus_timer = -1
         
 boutons = dict[str, Bouton](nom = "boutons", ressource = "Ressources/pyxres/elements_b.pyxres") # type: ignore
-            

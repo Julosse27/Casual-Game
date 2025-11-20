@@ -72,7 +72,6 @@ def draw():
             a_supp.append(i)
         
         if _liste_draw_chek[i] == "non_dessine" or liste_draw[i].animation:
-            print(liste_draw[i].animation)
             if _file_loaded != _liste_draw_ressources[i]:
                 px.load(_liste_draw_ressources[i])
                 _file_loaded = _liste_draw_ressources[i]

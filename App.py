@@ -28,7 +28,7 @@ class Jeu:
         Fenetre("test3", 16, 16, 2, 2, "complet inversé")
         Bouton("test", 32, 0, 2, 2, "simple", test)
         Bouton("test1", 32, 16, 2, 2, "complet", test2, "test2")
-        Bouton("test2", 48, 0, 2, 2, "complet", test3, "mot", 2, animation= "inversé")
+        Bouton("test2", 48, 0, 4, 3, "complet", test3, "mot", 2, animation= "inversé")
 
         px.mouse(True)
 
