@@ -22,7 +22,7 @@ class Jeu:
         # initialise la fenetre de jeu
         px.init(width, height, title= titre, fps= fps)
 
-        Fenetre("test", 0, 0, 2, 2, "simple")
+        Fenetre("test", 0, 0, 2, 2)
         Fenetre("test1", 16, 0, 2, 2, "simple inversé")
         Fenetre("test2", 0, 16, 2, 2, "complet")
         Fenetre("test3", 16, 16, 2, 2, "complet inversé")
@@ -43,6 +43,7 @@ class Jeu:
         if px.btn(px.KEY_A):
             px.quit()
         if px.frame_count == 0:
+            px.warp_mouse(500, 250)
             def_elements(boutons = ["test", "test1", "test2"], menus = ["test", "test1", "test2", "test3"])
         elements_update()
 
@@ -59,4 +60,4 @@ def test3(mot, repetitions):
         print(mot)
     print()
 
-Jeu(100, 100, "test")
+Jeu(1024, 512, "test")

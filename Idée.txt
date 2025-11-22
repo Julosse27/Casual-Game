@@ -5,13 +5,16 @@ genre: Jeu casual incremental ou tycoon
 theme: ??? peut etre reprendre themes autres jeux ?
 à voir
 
-couleurs: plutot chaudes: ambiance chalereuse
+couleurs: plutot chaudes: ambiance chalereuse (idée noël)
 peut etre plusieurs ambiances ou plusieurs zones ???
 
-concept et mécaniques: ???
+concept et mécaniques: 
+- plusieurs constantes: monaie, recherche etc.
+- permet améliorations (incremental de base)
 
 idées pour le dévellopement: 
-- système d'amélioration et base de données pour le joueur,
-- système de combat type endertale pour diversifier le jeu,
-- un tuto explicite que l'on peut passer mais qui donne des récompenses,
-- 
+- système d'amélioration et base de données pour le joueur
+- système de combat type undertale pour diversifier le jeu
+- un tuto explicite que l'on peut passer mais qui donne des récompenses
+- tete de darryl comme en SI 2nde
+- caller le "la bete noir, black, black" et "la grenouille"

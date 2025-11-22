@@ -4,12 +4,15 @@ Améliore le système de dessin pour améliorer les performances.
 
 import pyxel as px
 from typing import Literal
+from collections import defaultdict
 from Ressources.py.menus import Fenetre, menus as _menus
 from Ressources.py.boutons import Bouton, boutons as _boutons
 
 pos_souris = (0, 0)
 
-tilemap: list[list[int]] = []
+tilemap = defaultdict[int, list[tuple[int, int]]](lambda: [])
+
+background_color = None
 
 _file_loaded = None
 
@@ -20,6 +23,39 @@ _liste_draw_chek = list[Literal["dessine", "non_dessine", "a_supp"]]()
 _liste_draw_ressources = []
 
 list_ressources = (_menus, _boutons)
+
+def set_tilemap():
+    """
+    Va compresser la tilemap pour économiser encore des ressources.
+    """
+    global tilemap
+    for element in liste_elements:
+        for x in range(element.x, element.x + 8):
+            for y in range(element.x):
+                pass
+
+def cls_draw(couleur: int):
+    global background_color
+    background_color = couleur
+    px.cls(couleur)
+
+def get_tilemap(x: int, y: int):
+    """
+    Renvoie la couleur du pixel lors du dernier dessin.
+
+    Parameter
+    ----------
+    x: :class:`int`
+        La coordonée x.
+    y: :class:`int`
+        La coordonée y.
+    """
+
+    for color, pixels in tilemap.items():
+        if (x, y) in pixels:
+            return color
+    else:
+        raise ValueError(f"Le pixel {(x, y)} ne fait pas partit de l'écran.")
 
 def def_elements(ordre: Literal["inverse", "normal"] | list[tuple[str, str]] = "normal", **elements_noms: list[str]) -> None:
     r"""
@@ -76,8 +112,10 @@ def def_elements(ordre: Literal["inverse", "normal"] | list[tuple[str, str]] = "
             print("L'ordre et les noms spécifiées doivent correspondre.")
             return
         
-    global liste_elements
+    global liste_elements, _liste_draw_chek, _liste_draw_ressources
     liste_elements = list[Fenetre | Bouton]()
+    _liste_draw_chek = list[Literal["dessine", "non_dessine", "a_supp"]]()
+    _liste_draw_ressources = []
         
     for supp in type_supp:
         if ordre not in ("inverse", "normal"):
@@ -132,7 +170,7 @@ def stop_draw(type: Literal["menus", "boutons"], *noms):
             break
 
 def draw():
-    global pos_souris, tilemap, _file_loaded
+    global pos_souris, _file_loaded
     # Définit le font_d'écran
     if px.frame_count == 0:
         px.cls(12)
@@ -140,10 +178,11 @@ def draw():
         for x in range(pos_souris[0], pos_souris[0] + 8):
             for y in range(pos_souris[1], pos_souris[1] + 8):
                 if not (x > px.width or y > px.height):
-                    couleur = tilemap[x][y]
+                    couleur = get_tilemap(x, y)
                     px.pset(x, y, couleur)
 
     a_supp = []
+    dessin = False
     for i in range(len(_liste_draw_chek)):
         if _liste_draw_chek[i] == "a_supp":
             px.rect(liste_elements[i].x, liste_elements[i].y, liste_elements[i].width * 8, liste_elements[i].height * 8, 12)
@@ -154,13 +193,12 @@ def draw():
                 px.load(_liste_draw_ressources[i])
                 _file_loaded = _liste_draw_ressources[i]
             liste_elements[i].draw()
-            tilemap = []
-            for x in range(px.width + 1):
-                tilemap.append([])
-                for y in range(px.height + 1):
-                    tilemap[x].append(px.pget(x, y))
-                    
+            dessin = True
             _liste_draw_chek[i] = "dessine"
+    if dessin:
+        set_tilemap()
+                    
+            
 
     for pop in a_supp:
         _liste_draw_chek.pop(pop)

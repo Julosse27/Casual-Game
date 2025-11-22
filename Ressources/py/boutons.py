@@ -32,6 +32,7 @@ class Bouton:
         Le type d'animation lorsque la souris passe sur le bouton.
     """
     def __init__(self, nom: str, x: int, y: int, width: int, height: int, modele: Literal["simple", "complet"], action: Callable, *parametres_action, animation: Literal["inversé", "simple"] = "simple") -> None:
+        assert nom != "", "Le nom ne peut pas être vide."
         for noms in boutons:
             assert nom != noms, f"Le bouton {nom} existe déjà."        
         assert width >= 2 and height >= 2, f"La taille du bouton {nom} est trop petite."
@@ -65,6 +66,41 @@ class Bouton:
     def change_modele(self, nouveau_modele: Literal["simple", "complet"]):
         self.modele_actif = nouveau_modele
 
+    def get_modeles(self, x: int, y: int):
+        """
+        Fonction qui donne la qualification d'un endroit du bouton.
+        
+        Parameters
+        ----------
+        x: :class:`int`
+            Dans quelle colone de tuile.
+        y: :class:`int`
+            Dans quelle ligne de tuile.
+        """
+        if x == 0:
+            if y == 0:
+                emp = "h-g"
+            elif y == self.height - 1:
+                emp = "b-g"
+            else:
+                emp = "g"
+        elif x == self.width - 1:
+            if y == 0:
+                emp = "h-d"
+            elif y == self.height - 1:
+                emp = "b-d"
+            else:
+                emp = "d"
+        elif y == 0:
+            emp = "h"
+        elif y == self.height - 1:
+            emp = "b"
+        else:
+            emp = "m"
+
+        return emp
+
+
     def draw(self):
         """
         La fonction qui dessine le bouton.
@@ -77,26 +113,7 @@ class Bouton:
         
         for x in range(self.width):
             for y in range(self.height):
-                if x == 0:
-                    if y == 0:
-                        emp = "h-g"
-                    elif y == self.height - 1:
-                        emp = "b-g"
-                    else:
-                        emp = "g"
-                elif x == self.width - 1:
-                    if y == 0:
-                        emp = "h-d"
-                    elif y == self.height - 1:
-                        emp = "b-d"
-                    else:
-                        emp = "d"
-                elif y == 0:
-                    emp = "h"
-                elif y == self.height - 1:
-                    emp = "b"
-                else:
-                    emp = "m"
+                emp = self.get_modeles(x, y)
                 
                 px.tilemaps[0].pset(x, y, self.MODELES[self.modele_actif][anim][emp])    
         
@@ -123,4 +140,4 @@ class Bouton:
                 self.animation = True
                 self.focus_timer = -1
         
-boutons = dict[str, Bouton](nom = "boutons", ressource = "Ressources/pyxres/elements_b.pyxres") # type: ignore
+boutons = dict[str, Bouton](nom = "boutons", ressource = "Ressources/pyxres/elements_b.pyxres") # pyright: ignore[reportArgumentType]
