@@ -4,60 +4,46 @@ Améliore le système de dessin pour améliorer les performances.
 
 import pyxel as px
 from typing import Literal
-from collections import defaultdict
 from Ressources.py.menus import Fenetre, menus as _menus
 from Ressources.py.boutons import Bouton, boutons as _boutons
+from Ressources.py.modeles import init_ressources
 
 pos_souris = (0, 0)
-
-tilemap = defaultdict[int, list[tuple[int, int]]](lambda: [])
-
-background_color = None
-
-_file_loaded = None
 
 liste_elements = list[Fenetre | Bouton]()
 
 _liste_draw_chek = list[Literal["dessine", "non_dessine", "a_supp"]]()
 
-_liste_draw_ressources = []
+list_ressources = {_menus["nom"]: _menus, _boutons["nom"]: _boutons}
 
-list_ressources = (_menus, _boutons)
-
-def set_tilemap():
-    """
-    Va compresser la tilemap pour économiser encore des ressources.
-    """
-    global tilemap
+def tilemap_reset():
+    global color_map
+    color_map = dict[int, dict[int | Literal['origine'], int | str]]()
     for element in liste_elements:
-        for x in range(element.x, element.x + 8):
-            for y in range(element.x):
-                pass
-
-def cls_draw(couleur: int):
-    global background_color
-    background_color = couleur
-    px.cls(couleur)
-
-def get_tilemap(x: int, y: int):
+        color_map.update(element.color_map_1.copy())
+         
+def get_colormap(x: int, y: int) -> int:
     """
-    Renvoie la couleur du pixel lors du dernier dessin.
+    Retourne la couleur du pixel demandé.
 
-    Parameter
-    ----------
-    x: :class:`int`
-        La coordonée x.
-    y: :class:`int`
-        La coordonée y.
+    Parameters
+    -----------
+    x: :class:`int`:
+        La coordonnée x du pixel.
+    y: :class:`int`:
+        La coordonnée y du pixel.
+
+    Return
+    -------
+    color: :class:`int`:
+        La couleur de ce pixel selon l'actulle colormap.
     """
+    try:
+        return color_map[x][y] # pyright: ignore[reportReturnType]
+    except ValueError:
+        return 12
 
-    for color, pixels in tilemap.items():
-        if (x, y) in pixels:
-            return color
-    else:
-        raise ValueError(f"Le pixel {(x, y)} ne fait pas partit de l'écran.")
-
-def def_elements(ordre: Literal["inverse", "normal"] | list[tuple[str, str]] = "normal", **elements_noms: list[str]) -> None:
+def elements_def(ordre: Literal["inverse", "normal"] | list[tuple[str, str]] = "normal", **elements_noms: list[str]) -> None:
     r"""
     Fonction qui va permettre de définir les element à prendre en compte au
     moment actuel du jeu.
@@ -96,10 +82,7 @@ def def_elements(ordre: Literal["inverse", "normal"] | list[tuple[str, str]] = "
                 print("---")
             for nom in noms:
                 try:
-                    for ressource in list_ressources:
-                        if ressource["nom"] == type_e:
-                            ressource[nom]
-                            break
+                    list_ressources[type_e][nom]
                 except ValueError:
                     print(f"Le {type_e} {nom} n'existe pas il ne sera donc pas ajouté.")
                     nom_supp.append((type_e, nom))
@@ -112,10 +95,9 @@ def def_elements(ordre: Literal["inverse", "normal"] | list[tuple[str, str]] = "
             print("L'ordre et les noms spécifiées doivent correspondre.")
             return
         
-    global liste_elements, _liste_draw_chek, _liste_draw_ressources
+    global liste_elements, _liste_draw_chek
     liste_elements = list[Fenetre | Bouton]()
     _liste_draw_chek = list[Literal["dessine", "non_dessine", "a_supp"]]()
-    _liste_draw_ressources = []
         
     for supp in type_supp:
         if ordre not in ("inverse", "normal"):
@@ -140,7 +122,6 @@ def def_elements(ordre: Literal["inverse", "normal"] | list[tuple[str, str]] = "
                         elif ordre == "normal":
                             liste_elements.append(ressource[nom])
                         _liste_draw_chek.append("non_dessine")
-                        _liste_draw_ressources.append(ressource["ressource"])
                     continue
     else:
         for type_e, nom in ordre:
@@ -148,62 +129,40 @@ def def_elements(ordre: Literal["inverse", "normal"] | list[tuple[str, str]] = "
                 if ressource["nom"] == type_e:
                     liste_elements.append(ressource[nom])
                     _liste_draw_chek.append("non_dessine")
-                    _liste_draw_ressources.append(ressource["ressource"])
                     continue
+    
+    tilemap_reset()
 
 def elements_update():
     for element in liste_elements:
         if element.type == "bouton":
             element.update() # type:ignore
 
-def stop_draw(type: Literal["menus", "boutons"], *noms):
-    for ressources in list_ressources:
-        if ressources["nom"] == type:
-            for nom in noms:
-                try:
-                    index = liste_elements.index(ressources[nom])
-                    _liste_draw_chek[index] = "a_supp"
-                except KeyError:
-                    print(f"Le {type[:-1]} appelé {nom} n'est pas disponible.")
-                except ValueError:
-                    print(f"Le {type[:-1]} appelé {nom} n'est pas dans la liste a dessiner.")
-            break
-
 def draw():
-    global pos_souris, _file_loaded
+    global pos_souris
     # Définit le font_d'écran
-    if px.frame_count == 0:
-        px.cls(12)
-    else:
-        for x in range(pos_souris[0], pos_souris[0] + 8):
-            for y in range(pos_souris[1], pos_souris[1] + 8):
-                if not (x > px.width or y > px.height):
-                    couleur = get_tilemap(x, y)
-                    px.pset(x, y, couleur)
+    for x in range(pos_souris[0], pos_souris[0] + 8):
+        for y in range(pos_souris[1], pos_souris[1] + 8):
+            if not (x > px.width or y > px.height or x < 0 or y < 0):
+                couleur = get_colormap(x, y)
+                px.pset(x, y, couleur)
 
     a_supp = []
-    dessin = False
     for i in range(len(_liste_draw_chek)):
         if _liste_draw_chek[i] == "a_supp":
             px.rect(liste_elements[i].x, liste_elements[i].y, liste_elements[i].width * 8, liste_elements[i].height * 8, 12)
             a_supp.append(i)
+
+        liste_elements[i].animation
         
-        if _liste_draw_chek[i] == "non_dessine" or liste_elements[i].animation:
-            if _file_loaded != _liste_draw_ressources[i]:
-                px.load(_liste_draw_ressources[i])
-                _file_loaded = _liste_draw_ressources[i]
+        if _liste_draw_chek[i] == "non_dessine":
             liste_elements[i].draw()
-            dessin = True
             _liste_draw_chek[i] = "dessine"
-    if dessin:
-        set_tilemap()
-                    
             
 
     for pop in a_supp:
         _liste_draw_chek.pop(pop)
         liste_elements.pop(pop)
-        _liste_draw_ressources.pop(pop)
 
     # Enregistre la position de la souris pour la cacher
     # dans la prochaine frame

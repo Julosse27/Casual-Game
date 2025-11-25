@@ -3,6 +3,8 @@ Représente tout les boutons pour des interactions de base.
 """
 import pyxel as px
 from typing import Literal, Callable
+from Ressources.py.modeles import MODELES
+from collections import defaultdict
 
 class Bouton:
     r"""
@@ -28,20 +30,18 @@ class Bouton:
         L'action que ce bouton déclenche.
     parametres_action: nb_variable_args[`tout type`]
         Paramètres de l'action si il y en a.
-    animation: optionel[`Literal`[`"simple"`, `"inversé"`]]
-        Le type d'animation lorsque la souris passe sur le bouton.
+    animation: optionel[:class:`bool`]
+        Si l'animation doit être inversée, par défaut `False`.
     """
-    def __init__(self, nom: str, x: int, y: int, width: int, height: int, modele: Literal["simple", "complet"], action: Callable, *parametres_action, animation: Literal["inversé", "simple"] = "simple") -> None:
+    def __init__(self, nom: str, x: int, y: int, width: int, height: int, modele_type: Literal["simple", "complet"], action: Callable, *parametres_action, animation_inversee: bool = False) -> None:
         assert nom != "", "Le nom ne peut pas être vide."
         for noms in boutons:
             assert nom != noms, f"Le bouton {nom} existe déjà."        
         assert width >= 2 and height >= 2, f"La taille du bouton {nom} est trop petite."
         
-        self.MODELES = {
-            "simple": ( {"h-g": (0, 0), "h-d": (1, 0), "b-g": (0, 1), "b-d": (1, 1), "h": (2, 0), "b": (3, 0), "g": (2, 1), "d": (3, 1), "m": (4, 0), "cm": 10}, 
-                        {"h-g": (0, 2), "h-d": (1, 2), "b-g": (0, 3), "b-d": (1, 3), "h": (2, 2), "b": (3, 2), "g": (2, 3), "d": (3, 3), "m": (4, 0), "cm": 9}),
-            "complet": ({"h-g": (0, 4), "h-d": (1, 4), "b-g": (0, 5), "b-d": (1, 5), "h": (2, 4), "b": (3, 4), "g": (2, 5), "d": (3, 5), "m": (4, 0), "cm": 9},
-                        {"h-g": (0, 6), "h-d": (1, 6), "b-g": (0, 7), "b-d": (1, 7), "h": (2, 6), "b": (3, 6), "g": (2, 7), "d": (3, 7), "m": (4, 0), "cm": 10})
+        self._MODELES = {
+            "simple": "simple inversé",
+            "complet": "complet inversé"
             }
         
         self.action = action
@@ -56,17 +56,40 @@ class Bouton:
         self.width = width
         self.height = height
 
-        self._TYPES_ANIMS = (0, 1)
-        self.type_animation = 0 if animation == "simple" else 1
-        self.change_modele(modele)
+        modele = MODELES[self._MODELES[modele_type] if animation_inversee else modele_type]
+        modele_anim = MODELES[self._MODELES[modele_type] if not animation_inversee else modele_type]
+
+        self.color_map_1 = self.setup_colormaps(modele)
+        
+        self.color_map_2 = self.setup_colormaps(modele_anim)
+        
         self.animation = False
         self.focus_timer = -1
         boutons[nom] = self
 
-    def change_modele(self, nouveau_modele: Literal["simple", "complet"]):
-        self.modele_actif = nouveau_modele
+    def setup_colormaps(self, modele: dict[str, dict[int, dict[int, int]]]) -> defaultdict[int, dict[int| Literal["origine"], int | str]]:
+        r"""
+        Retourne la colormap en fonction du modèle donné.
 
-    def get_modeles(self, x: int, y: int):
+        Parameters
+        -----------
+        modele: :class:`dict`[:class:`str`, :class:`dict`[:class:`int`, :class:`dict`[:class:`int`, :class:`int`]]]:
+            Le modèle des couleurs.
+        """
+        variable = defaultdict[int, dict[int| Literal["origine"], int | str]](lambda: {"origine": self.nom})
+
+        for u in range(self.width):
+            for v in range(self.height):
+                for x, liste_y in modele[self.get_nom_cote(u, v)].items():
+                    x_pixel = self.x + u * 8 + x
+                    variable[x_pixel] = {}
+
+                    for y, color in liste_y.items():
+                        variable[x_pixel][self.y + u * 8 + y] = color
+        
+        return variable
+
+    def get_nom_cote(self, x: int, y: int):
         """
         Fonction qui donne la qualification d'un endroit du bouton.
         
@@ -105,23 +128,7 @@ class Bouton:
         """
         La fonction qui dessine le bouton.
         """
-        
-        if self.animation and self.focus_timer % 30 == 0:
-            anim = self._TYPES_ANIMS[self._TYPES_ANIMS.index(self.type_animation) - 1]
-        else:
-            anim = self.type_animation
-        
-        for x in range(self.width):
-            for y in range(self.height):
-                emp = self.get_modeles(x, y)
-                
-                px.tilemaps[0].pset(x, y, self.MODELES[self.modele_actif][anim][emp])    
-        
-        px.pal(0, self.MODELES[self.modele_actif][anim]["cm"])
-
-        px.bltm(self.x, self.y, 0, 0, 0, self.width * 8, self.height * 8)
-
-        px.pal()
+        pass
 
     def update(self):
         """
@@ -140,4 +147,4 @@ class Bouton:
                 self.animation = True
                 self.focus_timer = -1
         
-boutons = dict[str, Bouton](nom = "boutons", ressource = "Ressources/pyxres/elements_b.pyxres") # pyright: ignore[reportArgumentType]
+boutons = dict[str | Literal["nom"], Bouton](nom = "boutons")  # pyright: ignore[reportArgumentType]
