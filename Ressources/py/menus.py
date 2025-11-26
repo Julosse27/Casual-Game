@@ -40,17 +40,23 @@ class Fenetre:
         self.width = width
         self.height = height
 
-        self.type = "menu"
+        self.type = "menus"
         self.nom = nom        
 
         modele = MODELES[modele_type].copy()
-        self.color_map_1 = defaultdict[int, dict[int| Literal["origine"], int | str]](lambda: {"origine": self.nom})
+        self.color_map_1 = defaultdict[int, dict[int | Literal["origine"], int]](lambda: {"origine": (self.type, self.nom)}) # pyright: ignore[reportArgumentType]
         for u in range(self.width):
             for v in range(self.height):
-                for x, liste_y in modele[self.get_nom_cote(u, v)].items():
+                modele_tile = modele[self.get_nom_cote(u, v)]
+                for x, liste_y in modele_tile.items():
+                    color_x = x + self.x + u * 8
+                    liste_ex = {}
                     for y, color in liste_y.items():
-                        self.color_map_1[self.x + u * 8 + x][self.y + u * 8 + y] = color
-        self.color_map_2 = defaultdict[int, dict[int| Literal["origine"], int | str]](lambda: {"origine": self.nom})
+                        color_y = y + self.y + v * 8
+                        liste_ex[color_y] = color
+                    self.color_map_1[color_x].update(liste_ex)
+        
+        self.color_map_2 = defaultdict[int, dict[int| Literal["origine"], int]](lambda: {"origine": (self.type, self.nom)}) # pyright: ignore[reportArgumentType]
 
         self.animation = False
 

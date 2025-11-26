@@ -30,7 +30,7 @@ class Bouton:
         L'action que ce bouton déclenche.
     parametres_action: nb_variable_args[`tout type`]
         Paramètres de l'action si il y en a.
-    animation: optionel[:class:`bool`]
+    animation_inversee: optionel[:class:`bool`]
         Si l'animation doit être inversée, par défaut `False`.
     """
     def __init__(self, nom: str, x: int, y: int, width: int, height: int, modele_type: Literal["simple", "complet"], action: Callable, *parametres_action, animation_inversee: bool = False) -> None:
@@ -67,7 +67,7 @@ class Bouton:
         self.focus_timer = -1
         boutons[nom] = self
 
-    def setup_colormaps(self, modele: dict[str, dict[int, dict[int, int]]]) -> defaultdict[int, dict[int| Literal["origine"], int | str]]:
+    def setup_colormaps(self, modele: dict[str, dict[int, dict[int, int]]]) -> defaultdict[int, dict[int| Literal["origine"], int]]:
         r"""
         Retourne la colormap en fonction du modèle donné.
 
@@ -76,16 +76,18 @@ class Bouton:
         modele: :class:`dict`[:class:`str`, :class:`dict`[:class:`int`, :class:`dict`[:class:`int`, :class:`int`]]]:
             Le modèle des couleurs.
         """
-        variable = defaultdict[int, dict[int| Literal["origine"], int | str]](lambda: {"origine": self.nom})
+        variable = defaultdict[int, dict[int| Literal["origine"], int]](lambda: {"origine": (self.type, self.nom)}) # pyright: ignore[reportArgumentType]
 
         for u in range(self.width):
             for v in range(self.height):
-                for x, liste_y in modele[self.get_nom_cote(u, v)].items():
-                    x_pixel = self.x + u * 8 + x
-                    variable[x_pixel] = {}
-
+                modele_tile = modele[self.get_nom_cote(u, v)]
+                for x, liste_y in modele_tile.items():
+                    color_x = x + self.x + u * 8
+                    liste_ex = {}
                     for y, color in liste_y.items():
-                        variable[x_pixel][self.y + u * 8 + y] = color
+                        color_y = y + self.y + v * 8
+                        liste_ex[color_y] = color
+                    variable[color_x].update(liste_ex)
         
         return variable
 

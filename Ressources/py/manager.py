@@ -12,15 +12,38 @@ pos_souris = (0, 0)
 
 liste_elements = list[Fenetre | Bouton]()
 
-_liste_draw_chek = list[Literal["dessine", "non_dessine", "a_supp"]]()
+draw_statut = False
 
-list_ressources = {_menus["nom"]: _menus, _boutons["nom"]: _boutons}
+background_color = 12
 
-def tilemap_reset():
-    global color_map
-    color_map = dict[int, dict[int | Literal['origine'], int | str]]()
+list_ressources: dict[str, dict[str, Bouton | Fenetre]] = {_menus["nom"]: _menus, _boutons["nom"]: _boutons}  # pyright: ignore[reportAssignmentType]
+
+def colormap_reset():
+    global color_map, draw_statut
+    color_map = dict[int, dict[int | Literal['origine'], int]]()
     for element in liste_elements:
-        color_map.update(element.color_map_1.copy())
+        for x in range(element.x, element.x + element.width * 8):
+            try:
+                color_map[x]
+            except KeyError:
+                color_map[x] = {}
+            color_map_ex = {}
+            for y, color in element.color_map_1[x].items():
+                color_map_ex[y] = color
+            color_map[x].update(color_map_ex)
+    draw_statut = True
+
+def get_element_colors(type_e: Literal["boutons", "menus"], nom: str):
+    try:
+        first_x = list_ressources[type_e][nom].x
+        first_y = list_ressources[type_e][nom].y
+        for x, liste_y in color_map.items():
+            if x >= first_x and x < first_x + list_ressources[type_e][nom].width * 8:
+                for y, color in liste_y.items():
+                    if y >= first_y and y < first_y + list_ressources[type_e][nom].height * 8:  # pyright: ignore[reportOperatorIssue]
+                        pass
+    except KeyError:
+        print(f"Le {type_e} de nom {nom} n'existe pas.")
          
 def get_colormap(x: int, y: int) -> int:
     """
@@ -39,9 +62,11 @@ def get_colormap(x: int, y: int) -> int:
         La couleur de ce pixel selon l'actulle colormap.
     """
     try:
-        return color_map[x][y] # pyright: ignore[reportReturnType]
-    except ValueError:
-        return 12
+        res = color_map[x][y]
+        print(res)
+        return res
+    except KeyError:
+        return background_color
 
 def elements_def(ordre: Literal["inverse", "normal"] | list[tuple[str, str]] = "normal", **elements_noms: list[str]) -> None:
     r"""
@@ -83,7 +108,7 @@ def elements_def(ordre: Literal["inverse", "normal"] | list[tuple[str, str]] = "
             for nom in noms:
                 try:
                     list_ressources[type_e][nom]
-                except ValueError:
+                except KeyError:
                     print(f"Le {type_e} {nom} n'existe pas il ne sera donc pas ajouté.")
                     nom_supp.append((type_e, nom))
                 
@@ -95,9 +120,8 @@ def elements_def(ordre: Literal["inverse", "normal"] | list[tuple[str, str]] = "
             print("L'ordre et les noms spécifiées doivent correspondre.")
             return
         
-    global liste_elements, _liste_draw_chek
+    global liste_elements
     liste_elements = list[Fenetre | Bouton]()
-    _liste_draw_chek = list[Literal["dessine", "non_dessine", "a_supp"]]()
         
     for supp in type_supp:
         if ordre not in ("inverse", "normal"):
@@ -114,24 +138,20 @@ def elements_def(ordre: Literal["inverse", "normal"] | list[tuple[str, str]] = "
 
     if ordre in ("inverse", "normal"):
         for type_e, noms in elements_noms.items():
-            for ressource in list_ressources:
-                if ressource["nom"] == type_e:
-                    for nom in noms:
-                        if ordre == "inverse":
-                            liste_elements.insert(0, ressource[nom])
-                        elif ordre == "normal":
-                            liste_elements.append(ressource[nom])
-                        _liste_draw_chek.append("non_dessine")
-                    continue
+            ressource = list_ressources[type_e]
+            for nom in noms:
+                if ordre == "inverse":
+                    liste_elements.insert(0, ressource[nom])
+                elif ordre == "normal":
+                    liste_elements.append(ressource[nom])
+            continue
     else:
         for type_e, nom in ordre:
-            for ressource in list_ressources:
-                if ressource["nom"] == type_e:
-                    liste_elements.append(ressource[nom])
-                    _liste_draw_chek.append("non_dessine")
-                    continue
+            ressource = list_ressources[type_e]
+            liste_elements.append(ressource[nom])
+            continue
     
-    tilemap_reset()
+    colormap_reset()
 
 def elements_update():
     for element in liste_elements:
@@ -139,34 +159,24 @@ def elements_update():
             element.update() # type:ignore
 
 def draw():
-    global pos_souris
+    global pos_souris, draw_statut
     # Définit le font_d'écran
     for x in range(pos_souris[0], pos_souris[0] + 8):
         for y in range(pos_souris[1], pos_souris[1] + 8):
-            if not (x > px.width or y > px.height or x < 0 or y < 0):
+            if x >= 0 and x <= px.width and y >= 0 and y <= px.height:
                 couleur = get_colormap(x, y)
                 px.pset(x, y, couleur)
 
-    a_supp = []
-    for i in range(len(_liste_draw_chek)):
-        if _liste_draw_chek[i] == "a_supp":
-            px.rect(liste_elements[i].x, liste_elements[i].y, liste_elements[i].width * 8, liste_elements[i].height * 8, 12)
-            a_supp.append(i)
+    if draw_statut:
+        px.cls(background_color)
+        for x, liste_y in color_map.items():
+            for y, color in liste_y.items():
+                if type(y) == int:
+                    print(y)
+                    px.pset(x, y, color) # pyright: ignore[reportArgumentType]
+        draw_statut = False
 
-        liste_elements[i].animation
-        
-        if _liste_draw_chek[i] == "non_dessine":
-            liste_elements[i].draw()
-            _liste_draw_chek[i] = "dessine"
-            
-
-    for pop in a_supp:
-        _liste_draw_chek.pop(pop)
-        liste_elements.pop(pop)
-
-    # Enregistre la position de la souris pour la cacher
-    # dans la prochaine frame
     pos_souris = (
-                0 if px.mouse_x < 0 else px.width if px.mouse_x > px.width else px.mouse_x, 
-                0 if px.mouse_y < 0 else px.height if px.mouse_y > px.height else px.mouse_y
+                px.mouse_x,
+                px.mouse_y
                   )
