@@ -49,6 +49,7 @@ class Bouton:
 
         self.type = "bouton"
         self.nom = nom
+        self.id = "1" + str(len(boutons))
 
         self.x = x
         self.y = y
@@ -62,12 +63,15 @@ class Bouton:
         self.color_map_1 = self.setup_colormaps(modele)
         
         self.color_map_2 = self.setup_colormaps(modele_anim)
+
+        self.active_map = 1
         
+        self.change_modele: Callable[[Bouton, Literal[1, 2]], None]
         self.animation = False
         self.focus_timer = -1
         boutons[nom] = self
 
-    def setup_colormaps(self, modele: dict[str, dict[int, dict[int, int]]]) -> defaultdict[int, dict[int| Literal["origine"], int]]:
+    def setup_colormaps(self, modele: dict[str, dict[int, dict[int, int]]]) -> defaultdict[int, dict[int, tuple[int, str]]]:
         r"""
         Retourne la colormap en fonction du modèle donné.
 
@@ -76,17 +80,17 @@ class Bouton:
         modele: :class:`dict`[:class:`str`, :class:`dict`[:class:`int`, :class:`dict`[:class:`int`, :class:`int`]]]:
             Le modèle des couleurs.
         """
-        variable = defaultdict[int, dict[int| Literal["origine"], int]](lambda: {"origine": (self.type, self.nom)}) # pyright: ignore[reportArgumentType]
+        variable = defaultdict[int, dict[int, tuple[int, str]]](lambda: {})
 
         for u in range(self.width):
             for v in range(self.height):
                 modele_tile = modele[self.get_nom_cote(u, v)]
                 for x, liste_y in modele_tile.items():
                     color_x = x + self.x + u * 8
-                    liste_ex = {}
+                    liste_ex: dict[int, tuple[int, str]] = {}
                     for y, color in liste_y.items():
                         color_y = y + self.y + v * 8
-                        liste_ex[color_y] = color
+                        liste_ex[color_y] = (color, self.id)
                     variable[color_x].update(liste_ex)
         
         return variable
@@ -125,13 +129,6 @@ class Bouton:
 
         return emp
 
-
-    def draw(self):
-        """
-        La fonction qui dessine le bouton.
-        """
-        pass
-
     def update(self):
         """
         La fonction qui met à jour les action et les variables du bouton.
@@ -141,12 +138,12 @@ class Bouton:
         if (px.mouse_x >= self.x and px.mouse_x < self.x + self.width * 8) and (px.mouse_y >= self.y and px.mouse_y < self.y + self.height * 8):
             self.focus_timer += 1
             if self.focus_timer % 15 == 0:
-                self.animation = True
+                self.change_modele(self, 2 if self.active_map == 1 else 1)
             if px.btnp(px.MOUSE_BUTTON_LEFT):
                 self.action(*self.parametres)
         else:
             if self.focus_timer != -1:
-                self.animation = True
+                self.change_modele(self, 1)
                 self.focus_timer = -1
         
 boutons = dict[str | Literal["nom"], Bouton](nom = "boutons")  # pyright: ignore[reportArgumentType]

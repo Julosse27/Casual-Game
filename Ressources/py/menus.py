@@ -1,8 +1,7 @@
 """
 Représente toutes les actions et les affichages de base des menu aussi appelés fenètre.
 """
-import pyxel as px
-from typing import Literal
+from typing import Literal, Callable
 from Ressources.py.modeles import MODELES
 from collections import defaultdict
 
@@ -41,22 +40,27 @@ class Fenetre:
         self.height = height
 
         self.type = "menus"
-        self.nom = nom        
+        self.nom = nom    
+        self.id = "0" + str(len(menus))
+
+        self.change_modele: Callable
 
         modele = MODELES[modele_type].copy()
-        self.color_map_1 = defaultdict[int, dict[int | Literal["origine"], int]](lambda: {"origine": (self.type, self.nom)}) # pyright: ignore[reportArgumentType]
+        self.color_map_1 = defaultdict[int, dict[int, tuple[int, str]]](lambda: {})
         for u in range(self.width):
             for v in range(self.height):
                 modele_tile = modele[self.get_nom_cote(u, v)]
                 for x, liste_y in modele_tile.items():
                     color_x = x + self.x + u * 8
-                    liste_ex = {}
+                    liste_ex:dict[int, tuple[int, str]] = {}
                     for y, color in liste_y.items():
                         color_y = y + self.y + v * 8
-                        liste_ex[color_y] = color
+                        liste_ex[color_y] = (color, self.id)
                     self.color_map_1[color_x].update(liste_ex)
         
-        self.color_map_2 = defaultdict[int, dict[int| Literal["origine"], int]](lambda: {"origine": (self.type, self.nom)}) # pyright: ignore[reportArgumentType]
+        self.color_map_2 = defaultdict[int, dict[int, tuple[int, str]]](lambda: {})
+
+        self.active_map = 1
 
         self.animation = False
 

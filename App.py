@@ -25,13 +25,13 @@ class Jeu:
         init_ressources()
 
         Fenetre("test", 0, 0, 2, 2)
-        Bouton("test", 0, 0, 3, 3, "complet", test)
+        Bouton("test", 0, 0, 20, 30, "complet", test)
 
         px.mouse(True)
 
         px.cls(background_color)
 
-        elements_def(menus = ["test", "test1", "test2", "test3"], boutons = ["test", "test1", "test2"])
+        elements_def(boutons = ["test"])
 
         # lance la fenetre de jeu
         px.run(self.update, draw)

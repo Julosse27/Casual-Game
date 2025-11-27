@@ -18,9 +18,27 @@ background_color = 12
 
 list_ressources: dict[str, dict[str, Bouton | Fenetre]] = {_menus["nom"]: _menus, _boutons["nom"]: _boutons}  # pyright: ignore[reportAssignmentType]
 
+def change_modele(element: Fenetre | Bouton, nb_color_map: Literal[1, 2]):
+    global color_map, draw_statut
+    change = False
+    for x, _ in color_map.items():
+        color_map_el = element.color_map_1.copy() if nb_color_map == 1 else element.color_map_2.copy()
+        try:
+            for y_el, color in color_map_el[x].items():
+                if color[1] == element.id:
+                    color_map[x][y_el] = color
+                    change = True
+        except KeyError:
+            pass
+    if change:
+        draw_statut = True
+        element.active_map = nb_color_map
+    else:
+        print("Il n'y à aucun changement.")
+
 def colormap_reset():
     global color_map, draw_statut
-    color_map = dict[int, dict[int | Literal['origine'], int]]()
+    color_map = dict[int, dict[int, tuple[int, str]]]()
     for element in liste_elements:
         for x in range(element.x, element.x + element.width * 8):
             try:
@@ -62,8 +80,7 @@ def get_colormap(x: int, y: int) -> int:
         La couleur de ce pixel selon l'actulle colormap.
     """
     try:
-        res = color_map[x][y]
-        print(res)
+        res = color_map[x][y][0]
         return res
     except KeyError:
         return background_color
@@ -140,6 +157,7 @@ def elements_def(ordre: Literal["inverse", "normal"] | list[tuple[str, str]] = "
         for type_e, noms in elements_noms.items():
             ressource = list_ressources[type_e]
             for nom in noms:
+                ressource[nom].change_modele = change_modele
                 if ordre == "inverse":
                     liste_elements.insert(0, ressource[nom])
                 elif ordre == "normal":
@@ -155,8 +173,8 @@ def elements_def(ordre: Literal["inverse", "normal"] | list[tuple[str, str]] = "
 
 def elements_update():
     for element in liste_elements:
-        if element.type == "bouton":
-            element.update() # type:ignore
+        if type(element) == Bouton:
+            element.update()
 
 def draw():
     global pos_souris, draw_statut
@@ -172,8 +190,7 @@ def draw():
         for x, liste_y in color_map.items():
             for y, color in liste_y.items():
                 if type(y) == int:
-                    print(y)
-                    px.pset(x, y, color) # pyright: ignore[reportArgumentType]
+                    px.pset(x, y, color[0])
         draw_statut = False
 
     pos_souris = (
