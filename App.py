@@ -24,8 +24,7 @@ class Jeu:
 
         init_ressources()
 
-        Fenetre("test", 0, 0, 2, 2)
-        Bouton("test", 0, 0, 20, 30, "complet", test)
+        Bouton("test", 0, 0, 20, 30, test, modele_type= "complet")
 
         px.mouse(True)
 

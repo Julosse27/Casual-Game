@@ -4,6 +4,7 @@ Représente tout les boutons pour des interactions de base.
 import pyxel as px
 from typing import Literal, Callable
 from Ressources.py.modeles import MODELES
+from Ressources.py.couleurs import index_couleur
 from collections import defaultdict
 
 class Bouton:
@@ -20,20 +21,24 @@ class Bouton:
         La coordonée y ou se trouve le début de ce bouton.
     width: :class:`int`
         Le nombre de tuiles de largeurs que fera ce bouton.
-
         /!\ Une tuile représente 8 pixels.
     height: :class:`int`
         Le nombre de tuiles de hauteur que fera ce bouton.
-    modele: `Literal`[`"simple"`, `"complet"`]
-        Le modèle avec lequel le bouton doit etre dessinée.
     action: `fonction retourne none`
         L'action que ce bouton déclenche.
     parametres_action: nb_variable_args[`tout type`]
         Paramètres de l'action si il y en a.
     animation_inversee: optionel[:class:`bool`]
         Si l'animation doit être inversée, par défaut `False`.
+    modele: optionel[`Literal`[`"simple"`, `"complet"`]]
+        Le modèle avec lequel le bouton doit etre dessinée.
+    couleurs_spé: nb_variable_d'arguments[:class:`str`]
+        Ce paramètre permet de changer les couleurs du bouton:
+            - background = La couleur du fond
+            - side = la couleur du coté du bouton
+            - option_side = la couleur secondaire du coté du bouton
     """
-    def __init__(self, nom: str, x: int, y: int, width: int, height: int, modele_type: Literal["simple", "complet"], action: Callable, *parametres_action, animation_inversee: bool = False) -> None:
+    def __init__(self, nom: str, x: int, y: int, width: int, height: int, action: Callable, *parametres_action, animation_inversee: bool = False, modele_type: Literal["simple", "complet"] = "simple", **couleur_spé: str) -> None:
         assert nom != "", "Le nom ne peut pas être vide."
         for noms in boutons:
             assert nom != noms, f"Le bouton {nom} existe déjà."        
